@@ -1,9 +1,11 @@
 import * as vscode from "vscode";
 import * as rs from "text-readability";
 
-let myStatusBarItem: vscode.StatusBarItem;
 const SELECT_SCORE_TYPE_COMMAND_ID = "text-readability.selectScoreType";
+const SHOW_SELECTION_SCORE_COMMAND_ID = "text-readability.showSelectionScore";
 const SCORE_TYPE_CONFIGURATION_ID = "textReadability.scoreType";
+
+let scoreStatusBarItem: vscode.StatusBarItem;
 
 enum ReadabilityScoreType {
   SyllableCount = "Syllable Count",
@@ -79,7 +81,32 @@ export function activate(context: vscode.ExtensionContext) {
     })
   );
 
-  myStatusBarItem = vscode.window.createStatusBarItem(
+  context.subscriptions.push(
+    vscode.commands.registerCommand(SHOW_SELECTION_SCORE_COMMAND_ID, () => {
+      const selectedText = vscode.window.activeTextEditor?.document.getText(
+        vscode.window.activeTextEditor.selection
+      );
+      if (selectedText === undefined || selectedText.length === 0) {
+        vscode.window.showErrorMessage("No text selected");
+        return;
+      }
+      const scoreType = vscode.workspace
+        .getConfiguration()
+        .get(
+          SCORE_TYPE_CONFIGURATION_ID,
+          ReadabilityScoreType.SyllableCount
+        ) as ReadabilityScoreType;
+      vscode.window.showInformationMessage(
+        `${scoreType}: ${calculateScore(selectedText, scoreType)}`
+      );
+    })
+  );
+
+  setupStatusBarItem(context);
+}
+
+function setupStatusBarItem(context: vscode.ExtensionContext) {
+  scoreStatusBarItem = vscode.window.createStatusBarItem(
     vscode.StatusBarAlignment.Right,
     100
   );
@@ -100,15 +127,15 @@ export function activate(context: vscode.ExtensionContext) {
       updateStatusBarItem();
     })
   );
-  myStatusBarItem.command = SELECT_SCORE_TYPE_COMMAND_ID;
+  scoreStatusBarItem.command = SELECT_SCORE_TYPE_COMMAND_ID;
   updateStatusBarItem();
-  context.subscriptions.push(myStatusBarItem);
+  context.subscriptions.push(scoreStatusBarItem);
 }
 
 function updateStatusBarItem(): void {
   const text = vscode.window.activeTextEditor?.document.getText();
   if (text === undefined) {
-    myStatusBarItem.hide();
+    scoreStatusBarItem.hide();
     return;
   }
   const scoreType = vscode.workspace
@@ -117,8 +144,8 @@ function updateStatusBarItem(): void {
       SCORE_TYPE_CONFIGURATION_ID,
       ReadabilityScoreType.SyllableCount
     ) as ReadabilityScoreType;
-  myStatusBarItem.show();
-  myStatusBarItem.text = `${scoreType}: ${calculateScore(text, scoreType)}`;
+  scoreStatusBarItem.show();
+  scoreStatusBarItem.text = `${scoreType}: ${calculateScore(text, scoreType)}`;
 }
 
 export function deactivate() {}
