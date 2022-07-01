@@ -9,7 +9,6 @@ let scoreStatusBarItem: vscode.StatusBarItem;
 
 enum ReadabilityScoreType {
   SyllableCount = "Syllable Count",
-  FleschKincaid = "Flesch-Kincaid",
   LexiconCount = "Lexicon Count",
   SentenceCount = "Sentence Count",
   FleschReadingEase = "Flesch Reading Ease",
@@ -25,8 +24,6 @@ enum ReadabilityScoreType {
 
 function calculateScore(text: string, scoreType: ReadabilityScoreType) {
   switch (scoreType) {
-    case ReadabilityScoreType.FleschKincaid:
-      return rs.fleschKincaid(text);
     case ReadabilityScoreType.LexiconCount:
       return rs.lexiconCount(text);
     case ReadabilityScoreType.SentenceCount:

@@ -1,7 +1,6 @@
 declare module "text-readability" {
   const rs: {
     syllableCount(text: string): number;
-    fleschKincaid(text: string): number;
     lexiconCount(text: string): number;
     sentenceCount(text: string): number;
     fleschReadingEase(text: string): number;

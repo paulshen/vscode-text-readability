@@ -34,7 +34,6 @@
           ],
           "enum": [
             "Syllable Count",
-            "Flesch-Kincaid",
             "Lexicon Count",
             "Sentence Count",
             "Flesch Reading Ease",
